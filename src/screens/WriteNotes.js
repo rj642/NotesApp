@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, TextInput } from 'react-native'
+import { View, Text, TextInput, ScrollView, StatusBar } from 'react-native'
 import { useNavigationParam, useRoute } from '@react-navigation/native'
 import { SvgXml } from 'react-native-svg'
-import { black } from "../../components/CustomStyles/Colors";
+import { black, white } from "../../components/CustomStyles/Colors";
 import { AddTaskButton, BackButton, HeartButton, ShareButton } from "../assets/icons";
 
 const ActionBar = ({ navigation }) => {
@@ -47,20 +47,22 @@ const ViewAndEditScreen = ({ title, content }) => {
 
     return (
         <View style={{ flex: 1, justifyContent: 'flex-start', alignItems: 'flex-start' }}>
-            <TextInput
-                style={{ fontSize: 32, fontWeight: '700', color: black }}
-                value={newTitle}
-                placeholder={'Title'}
-                multiline={true}
-                onChangeText={setNewTitle}
-            />
-            <TextInput
-                style={{ fontSize: 16, fontWeight: '400', color: black }}
-                value={newContent}
-                placeholder={'Content'}
-                multiline={true}
-                onChangeText={setNewContent}
-            />
+            <ScrollView>
+                <TextInput
+                    style={{ fontSize: 32, fontWeight: '700', color: black }}
+                    value={newTitle}
+                    placeholder={'Title'}
+                    multiline={true}
+                    onChangeText={setNewTitle}
+                />
+                <TextInput
+                    style={{ fontSize: 16, fontWeight: '400', color: black }}
+                    value={newContent}
+                    placeholder={'Content'}
+                    multiline={true}
+                    onChangeText={setNewContent}
+                />
+            </ScrollView>
         </View>
     )
 
@@ -74,7 +76,8 @@ const WriteNotes = ({ navigation }) => {
 
     return (
         <View style={{ flex: 1, justifyContent: 'flex-start', alignItems: 'flex-start', padding: 24 }}>
-            <ActionBar navigation={navigation}/>
+            <StatusBar backgroundColor={black} />
+            <ActionBar navigation={navigation} />
             <ViewAndEditScreen title={title} content={content} />
         </View>
     )

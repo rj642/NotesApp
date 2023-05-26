@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { SvgUri, Svg, SvgXml } from "react-native-svg";
 import styles from "../../components/CustomStyles/Styles";
-import { View, Dimensions, Text, ScrollView, Pressable, FlatList } from 'react-native'
+import { View, Dimensions, Text, ScrollView, Pressable, FlatList, StatusBar } from 'react-native'
 import SearchTextInput from "../../components/TextInputs/SearchTextInput";
 import { BellIcon } from "../assets/icons";
 import { black, white } from "../../components/CustomStyles/Colors";
@@ -152,7 +152,8 @@ const AllNotes = ({ navigation }) => {
     const [searchText, setSearchText] = useState("")
 
     return (
-        <View style={{ overflow: "scroll", }}>
+        <View style={{ overflow: "scroll", backgroundColor: white}}>
+            <StatusBar backgroundColor={black}/>
             <View style={{ width: '100%', padding: 24, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', alignContent: 'center', flexWrap: "wrap" }}>
                 <SearchTextInput value={searchText} placeholder={'Search for notes'} onChangeText={setSearchText} />
                 <SvgXml
