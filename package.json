@@ -13,11 +13,11 @@
     "clear-cache": "react-native start --reset-cache"
   },
   "dependencies": {
-    "@react-native-async-storage/async-storage": "^1.18.1",
     "@react-navigation/material-bottom-tabs": "^6.2.15",
     "@react-navigation/native": "^6.1.6",
     "@react-navigation/native-stack": "^6.9.12",
     "@react-navigation/stack": "^6.3.16",
+    "@realm/react": "^0.4.3",
     "adb": "^0.2.0",
     "react": "18.2.0",
     "react-native": "0.71.8",
@@ -26,7 +26,8 @@
     "react-native-svg": "^13.9.0",
     "react-native-svg-transformer": "^1.0.0",
     "react-native-vector-icons": "^9.2.0",
-    "react-native-viewport-units": "^0.0.5"
+    "react-native-viewport-units": "^0.0.5",
+    "realm": "^11.9.0"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",

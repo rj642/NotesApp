@@ -1,10 +1,13 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { SvgUri, Svg, SvgXml } from "react-native-svg";
 import styles from "../../components/CustomStyles/Styles";
 import { View, Dimensions, Text, ScrollView, Pressable, FlatList, StatusBar } from 'react-native'
 import SearchTextInput from "../../components/TextInputs/SearchTextInput";
 import { BellIcon } from "../assets/icons";
 import { black, white } from "../../components/CustomStyles/Colors";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { realmConfig, useObject, useQuery, useRealm } from "../routes/Navigator";
+import NotesModel from "../models/NotesModel";
 
 const DateConstants = [
     {
@@ -109,7 +112,7 @@ const NotepadList = [
 const NotepadCardView = ({ item, onPress }) => {
 
     return (
-        <Pressable onPress={onPress} style={{flex: 1 / 2}}>
+        <Pressable onPress={onPress} style={{ flex: 1 / 2 }}>
             <View style={{ paddingHorizontal: 16, paddingVertical: 14, borderRadius: 15, backgroundColor: item.color, marginBottom: 16, marginHorizontal: 8 }}>
                 <Text style={{ fontWeight: '700', fontSize: 16, color: black }}>{item.title}</Text>
                 <Text style={{ fontWeight: '500', fontSize: 12, color: black, marginTop: 10 }}>{item.content}</Text>
@@ -147,15 +150,49 @@ const CalendarTextItem = ({ text }) => {
     )
 }
 
+const AddNotes = ({ navigation }) => {
+    return (
+        <Pressable style={{ bottom: 1.0, end: 1.0, position: 'absolute', backgroundColor: '#00000000' }} onPress={() => navigation.navigate('WriteNotes', { title: "", content: "" })}>
+            <View style={{ borderRadius: 100, aspectRatio: 1, width: 50, height: 50, backgroundColor: black, alignItems: 'center', justifyContent: 'center', alignContent: 'center', margin: 16 }}>
+                <Text style={{ fontSize: 32, color: white }}>+</Text>
+            </View>
+        </Pressable>
+    )
+}
+
+/*const _getAllNotes = async () => {
+    try {
+        const keys = await AsyncStorage.getAllKeys()
+        const results = await AsyncStorage.multiGet(keys);
+
+        return results.map(req => JSON.parse(req)).forEach(console.log);
+    } catch (error) {
+        console.log(error);
+    }
+}*/
+
 const AllNotes = ({ navigation }) => {
 
+    const notesObject = useQuery(NotesModel)
     const [searchText, setSearchText] = useState("")
+    const [allNotes, setAllNotes] = useState([])
+
+    useEffect(() => {
+        console.log(notesObject.toJSON)
+        setAllNotes(notesObject.toJSON)
+    }, [])
+
+    const handleNotesFilter = () => (text) => {
+        const filtered = notesObject.filtered(`title CONTAINS[c] '${text}'`)
+        setSearchText(text)
+        setAllNotes(filtered)
+    }
 
     return (
-        <View style={{ overflow: "scroll", backgroundColor: white}}>
-            <StatusBar backgroundColor={black}/>
+        <View style={{ flex: 1, overflow: "scroll", backgroundColor: white }}>
+            <StatusBar backgroundColor={black} />
             <View style={{ width: '100%', padding: 24, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', alignContent: 'center', flexWrap: "wrap" }}>
-                <SearchTextInput value={searchText} placeholder={'Search for notes'} onChangeText={setSearchText} />
+                <SearchTextInput value={searchText} placeholder={'Search for notes'} onChangeText={handleNotesFilter()} />
                 <SvgXml
                     style={{ marginStart: 16 }}
                     xml={BellIcon}
@@ -164,38 +201,49 @@ const AllNotes = ({ navigation }) => {
                 />
             </View>
             <View style={{ paddingBottom: 10 }}>
-                <ScrollView horizontal={true} showsHorizontalScrollIndicator={false} paddingHorizontal={24} >
-                    {
-                        DateConstants.map(item => {
-                            return (
-                                <View style={{ paddingEnd: 12, justifyContent: 'flex-start', alignSelf: 'flex-start' }}>
-                                    <CalendarTextItem text={item} key={item.date} />
-                                </View>
-                            )
-                        })
+                <FlatList
+                    style={{ paddingEnd: 24 }}
+                    data={DateConstants}
+                    horizontal={true}
+                    showsHorizontalScrollIndicator={false}
+                    paddingHorizontal={24}
+                    renderItem={({ item }) =>
+                        <View style={{ paddingEnd: 12, justifyContent: 'flex-start', alignSelf: 'flex-start' }}>
+                            <CalendarTextItem text={item} key={item.date} />
+                        </View>
                     }
-                </ScrollView>
+                />
             </View>
             <ScrollView >
-                <ScrollView horizontal={true} showsHorizontalScrollIndicator={false} paddingHorizontal={24} style={{ paddingVertical: 18 }}>
-                    {
-                        ListItem.map(item => {
-                            return (
-                                <View style={{ paddingEnd: 12, justifyContent: 'flex-start', alignSelf: 'center' }}>
-                                    <CardView text={item} key={item} />
-                                </View>
-                            )
-                        })
-                    }
-                </ScrollView>
                 <FlatList
-                    style={{ paddingHorizontal: 12 }}
-                    data={NotepadList}
-                    numColumns={2}
-                    renderItem={({ item }) => <NotepadCardView item={item} onPress={() => navigation.navigate('WriteNotes', {title: item.title, content: item.content})} />}
-                    keyExtractor={(item) => item.id}
+                    data={ListItem}
+                    horizontal={true}
+                    showsHorizontalScrollIndicator={false}
+                    paddingHorizontal={24}
+                    paddingVertical={15}
+                    renderItem={({ item }) =>
+                        <View style={{ paddingEnd: 12, justifyContent: 'center', alignSelf: 'center', overflow: 'visible' }}>
+                            <CardView text={item} key={item} />
+                        </View>
+                    }
+                
                 />
+                {allNotes.length > 0 ? (
+                    <FlatList
+                        style={{ paddingHorizontal: 12 }}
+                        scrollEnabled={false}
+                        data={allNotes}
+                        numColumns={2}
+                        renderItem={({ item }) => <NotepadCardView item={item} onPress={() => navigation.navigate('WriteNotes', { title: item.title, content: item.content })} />}
+                        keyExtractor={(item) => item.id}
+                    />
+                ) : (
+                    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                        <Text style={{ fontWeight: '600', fontSize: 32, color: '#C3C3C3', textAlign: 'center' }}>{"Nothing here :))))"}</Text>
+                    </View>
+                )}
             </ScrollView>
+            <AddNotes navigation={navigation} />
         </View>
     )
 }
